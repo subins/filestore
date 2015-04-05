@@ -1,12 +1,17 @@
 package com.filestore.rest;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -22,6 +27,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hdfs.DFSClient;
 
 import com.filestore.db.DBUtil;
 import com.filestore.dto.BaseResponse;
@@ -37,6 +44,7 @@ import com.sun.jersey.multipart.FormDataParam;
 public class FileController {
     
     private String BASE_PATH = "/Users/subin/Documents/work/filestore/filestore/tmp/";
+    
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -89,6 +97,81 @@ public class FileController {
 	return Response.status(200).entity(response).build();
 	
     }
+    
+    
+   /* @POST
+    @Path("/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response uploadFile(
+	    @FormDataParam("file") InputStream uploadedInputStream,
+	    @FormDataParam("file") FormDataContentDisposition fileDisposition,
+	    @FormDataParam("file") FormDataBodyPart body,
+	    @Context HttpServletRequest request) throws IOException, URISyntaxException {
+	User user = (User) request.getAttribute("user");
+	String hdfsurl="hdfs://128.199.91.73:54310";
+	String fileName = fileDisposition.getFileName();
+	String destinationFilename = user.getEmail()+"_"+UUID.randomUUID() + "_"+fileName;
+	
+	Configuration conf = new Configuration();
+        conf.set("fs.defaultFS", hdfsurl);
+        DFSClient client = new DFSClient(new URI(hdfsurl), conf);
+        OutputStream out = null;
+        InputStream in = null;
+        long size=0;
+        try {
+            if (client.exists(destinationFilename)) {
+                System.out.println("File already exists in hdfs: " + destinationFilename);
+                BaseResponse response = new BaseResponse();
+    	    	response.setMessage("failed");
+    	    	response.setSuccess(false);
+    	    	return Response.status(500).entity(response).build();
+            }
+            out = new BufferedOutputStream(client.create(destinationFilename, false));
+            in = new BufferedInputStream(uploadedInputStream);
+            byte[] buffer = new byte[1024];
+ 
+            int len = 0;
+            while ((len = in.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
+                size+=len;
+            }
+        } finally {
+            if (client != null) {
+                client.close();
+            }
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+        }
+	
+	
+	File file = new File();
+	file.setName(fileName);
+	file.setOwner(user);
+	file.setOpen(false);
+	file.setPath(destinationFilename);
+	file.setSize(size);
+	file.setCreated(new Date());
+	file.setContentType(body.getMediaType().toString());
+	EntityManager em = DBUtil.getEntityManagerFactory().createEntityManager();
+	em.getTransaction().begin();
+	em.persist(file);
+	em.getTransaction().commit();
+	
+	BaseResponse response = new BaseResponse();
+	response.setMessage("successfully uploaded");
+	response.setSuccess(true);
+	return Response.status(200).entity(response).build();
+	
+    }
+    
+    */
+    
+    
     
     
     

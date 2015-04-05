@@ -102,7 +102,7 @@ User user = (User)request.getAttribute("user");
 		                             <th>File Name</th>
 		                             <th>Size</th>
 		                             <th>Content Type</th>
-		                             <th>Public</th>
+		                             <th style="min-width: 100px">Public</th>
 		                             <th style="text-align:center" width="20%">Public Link</th>
 		                               </tr>
 		                               <tr ng-repeat="file in files">

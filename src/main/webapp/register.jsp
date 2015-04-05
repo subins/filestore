@@ -26,7 +26,7 @@
     
     
     
-<div class="container" data-ng-controller="RegisterController" data-ng-init="init()">
+<div class="container  ng-cloak" data-ng-controller="RegisterController" data-ng-init="init()">
     <div class="row">
     
         <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">

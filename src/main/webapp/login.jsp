@@ -26,7 +26,7 @@
     
     
     
-<div class="container" ng-controller="LoginController" ng-init="init()">
+<div class="container ng-cloak" ng-controller="LoginController" ng-init="init()">
     <div class="row">
         <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
             <h1 class="text-center login-title">Sign in to continue</h1>
