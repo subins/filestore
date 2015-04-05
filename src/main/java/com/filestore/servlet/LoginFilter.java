@@ -92,7 +92,9 @@ public class LoginFilter implements Filter {
 
     private String getSessionIdFromCookie(HttpServletRequest req) {
 	Cookie[] cookies = req.getCookies();
-
+	if(cookies == null) {
+	    return null;
+	}
 	for (int i = 0; i < cookies.length; i++) {
 	  String name = cookies[i].getName();
 	  String value = cookies[i].getValue();
