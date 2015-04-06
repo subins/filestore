@@ -67,7 +67,7 @@
                 <br>
                 <button class="btn btn-lg btn-primary btn-block" type="submit">
                 
-                    Register</button>
+                    {{loading?'Registering':'Register'}}<img data-ng-show="loading" class="snaplync-loading" src="img/ajax-loader-fb.gif"></button>
                 
                 <label class="pull-right">
                     Already a member?&nbsp; 

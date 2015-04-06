@@ -41,13 +41,15 @@ angular.module('filestore').controller('RegisterController', ['$cookies','$state
 		var obj ={};
 		angular.copy($scope.user, obj)
 		delete obj.confirmPassword;
+		$scope.loading =true;
 		$http.post('api/user/register',obj)
 		.success(function(response) {
             
             $scope.success = true;
-            
+            $scope.loading =false;
         }).error(function(data, status, headers, config) {
         	$scope.success = false;
+        	$scope.loading =false;
         	if(status ==502) {
         		$scope.error.email=true;
     			$scope.error.email_exists=true;

@@ -23,9 +23,12 @@
 
   <%
 User user = (User)request.getAttribute("user");
-
+String url = request.getRequestURL().toString();
+	    url= url.substring(0, url.lastIndexOf("/")+1);
+	    
 %>
-  <body class="ng-cloak" ng-controller="HomeController" ng-init="init();loggedInEmail='<%=user.getEmail()%>'">
+<%=url %>
+  <body class="ng-cloak" ng-controller="HomeController" ng-init="init();loggedInEmail='<%=user.getEmail()%>';base_url='<%=url%>';">
 
     
     
@@ -106,8 +109,8 @@ User user = (User)request.getAttribute("user");
 		                             <th style="text-align:center" width="20%">Public Link</th>
 		                               </tr>
 		                               <tr ng-repeat="file in files">
-		                                 <td>{{file.id}}</td>
-		                                 <td>{{file.name |trim:30}}</td>
+		                                 <td><a target="_blank" href="api/file/download?fileid={{file.id}}">{{file.id}}</a></td>
+		                                 <td><a target="_blank" href="api/file/download?fileid={{file.id}}">{{file.name |trim:30}}</a></td>
 		                                 <td>{{file.size | memory}}</td>
 		                                 <td>{{file.contentType}}</td>
 		                                 <td> 
@@ -116,7 +119,7 @@ User user = (User)request.getAttribute("user");
 		                                 </td>
 		                                 
 		                                 
-		                                 <td><input type="text" ng-disabled="!file.open" value="http://localhost:8080/filestore/file/55"/></td>
+		                                 <td><input type="text" ng-disabled="!file.open" value="{{base_url}}api/file/download?fileid={{file.id}}"/></td>
 		                                 
 		
 		                          </tr>
@@ -169,7 +172,7 @@ User user = (User)request.getAttribute("user");
     <script src="./js/home-controller.js"></script>
     
     
-    <!-- details modal -->
+    <!-- upload modal -->
 <div class="modal" id="upload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-center">
     <div class="modal-content">
@@ -193,7 +196,7 @@ User user = (User)request.getAttribute("user");
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-ng-click="uploadFile()">Upload</button>
+        <button type="button" class="btn btn-primary" data-ng-click="uploadFile()">{{loading?'Uploading':'Upload'}}<img data-ng-show="loading" class="snaplync-loading" src="img/ajax-loader-fb.gif"></button>
       </div>
     </div>
   </div>

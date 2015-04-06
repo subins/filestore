@@ -37,18 +37,22 @@ angular.module('filestore').controller('HomeController', ['$window','$cookies','
         fd.append('file', file);
         console.log('file is ' + JSON.stringify(file));
         var uploadUrl = "api/file/upload";
+        $scope.loading =true;
         $http.post(uploadUrl, fd, {
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}
+        
         })
         .success(function(response){
         	console.log(response);
         	$('#upload').modal('hide');
         	$scope.init();
+        	$scope.loading = false;
         
         })
         .error(function(response){
         	console.log(response);
+        	$scope.loading = false;
         	
         });
     };

@@ -147,5 +147,7 @@ angular.module('filestore').directive('ngEnter', function () {
         });
     };
 });
-
+angular.module('filestore').filter('encodeURIComponent', function() {
+    return window.encodeURIComponent;
+});
 

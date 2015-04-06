@@ -16,6 +16,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,10 +26,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.RequestWrapper;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DFSClient;
+import org.apache.hadoop.hdfs.DFSInputStream;
 
 import com.filestore.db.DBUtil;
 import com.filestore.dto.BaseResponse;
@@ -36,6 +39,7 @@ import com.filestore.dto.FileDto;
 import com.filestore.dto.FilesResponseDto;
 import com.filestore.model.File;
 import com.filestore.model.User;
+import com.filestore.servlet.LoginFilter;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataParam;
@@ -45,7 +49,7 @@ public class FileController {
     
     private String BASE_PATH = "/Users/subin/Documents/work/filestore/filestore/tmp/";
     
-    @POST
+    /*@POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -96,10 +100,10 @@ public class FileController {
 	response.setSuccess(true);
 	return Response.status(200).entity(response).build();
 	
-    }
+    }*/
     
     
-   /* @POST
+    @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -109,9 +113,9 @@ public class FileController {
 	    @FormDataParam("file") FormDataBodyPart body,
 	    @Context HttpServletRequest request) throws IOException, URISyntaxException {
 	User user = (User) request.getAttribute("user");
-	String hdfsurl="hdfs://128.199.91.73:54310";
+	String hdfsurl="hdfs://128.199.91.73";
 	String fileName = fileDisposition.getFileName();
-	String destinationFilename = user.getEmail()+"_"+UUID.randomUUID() + "_"+fileName;
+	String destinationFilename = "/"+user.getEmail()+"_"+System.currentTimeMillis() + "_"+fileName;
 	
 	Configuration conf = new Configuration();
         conf.set("fs.defaultFS", hdfsurl);
@@ -127,6 +131,7 @@ public class FileController {
     	    	response.setSuccess(false);
     	    	return Response.status(500).entity(response).build();
             }
+            
             out = new BufferedOutputStream(client.create(destinationFilename, false));
             in = new BufferedInputStream(uploadedInputStream);
             byte[] buffer = new byte[1024];
@@ -137,14 +142,16 @@ public class FileController {
                 size+=len;
             }
         } finally {
-            if (client != null) {
-                client.close();
-            }
+            
             if (in != null) {
                 in.close();
             }
+            
             if (out != null) {
                 out.close();
+            }
+            if (client != null) {
+                client.close();
             }
         }
 	
@@ -169,7 +176,65 @@ public class FileController {
 	
     }
     
-    */
+   
+    @GET
+    @Path("/download")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response download(@Context HttpServletRequest request,
+	    @Context HttpServletResponse response) throws IOException, URISyntaxException  {
+	
+	String idString = request.getParameter("fileid");
+	Long id = new Long(idString);
+	User user = (User) request.getAttribute("user");
+	String hdfsurl="hdfs://128.199.91.73";
+	DFSInputStream is = null;
+	Configuration conf = new Configuration();
+	conf.set("fs.defaultFS", hdfsurl);
+	DFSClient client = new DFSClient(new URI(hdfsurl), conf);
+	
+	String sessionId = LoginFilter.getSessionIdFromCookie(request);
+	EntityManager em = DBUtil.getEntityManagerFactory().createEntityManager();
+	boolean authenticated = LoginFilter.validSession(sessionId, em, request);
+	
+	
+	try {
+        	Query q = em.createQuery("select f from File f where f.id=:id", File.class);
+        	q.setParameter("id", id);
+        	File file= (File)q.getSingleResult();
+        	if(!file.getOpen()) { // case of private file
+        	    if(! (authenticated && ((User)request.getAttribute("user")).getId() == file.getOwner().getId())) {
+        		response.sendError(401);
+        		return null;
+        	    }
+        	}
+        	is = client.open(file.getPath());
+        	//response.setHeader("Content-Length", String.valueOf(file.getSize()));
+        	response.setContentType(file.getContentType());
+        	response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        	byte[] buffer = new byte[10240];
+        	for (int length = 0; (length = is.read(buffer)) > 0;) {
+        	        response.getOutputStream().write(buffer, 0, length);
+        	 }
+        	
+        		
+        	
+	} catch(Exception e) {
+	    	e.printStackTrace();
+	    	BaseResponse resp = new BaseResponse();
+	    	resp.setMessage("failed");
+	    	resp.setSuccess(false);
+	    	return Response.status(500).entity(resp).build();
+	    
+	} finally {
+	    if(is !=null) {
+		is.close();
+	    }
+	    client.close();
+	    response.getOutputStream().close();
+	}
+	return null;
+	
+    }
     
     
     

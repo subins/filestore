@@ -42,7 +42,8 @@ public class LoginFilter implements Filter {
 	    "/img/",
 	    "/lib/",
 	    "/login",
-	    "/register"
+	    "/register",
+	    "/api/file/download"
 	    };
     
     
@@ -73,7 +74,7 @@ public class LoginFilter implements Filter {
 	
     }
     
-    private boolean validSession(String sessionId, EntityManager em, HttpServletRequest request) {
+    public static boolean validSession(String sessionId, EntityManager em, HttpServletRequest request) {
 	try {
 	    Query q = em.createQuery("Select s from Session s where s.token=:token");
 	    q.setParameter("token", sessionId);
@@ -90,7 +91,7 @@ public class LoginFilter implements Filter {
 	
     }
 
-    private String getSessionIdFromCookie(HttpServletRequest req) {
+    public static String getSessionIdFromCookie(HttpServletRequest req) {
 	Cookie[] cookies = req.getCookies();
 	if(cookies == null) {
 	    return null;
