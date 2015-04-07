@@ -57,7 +57,17 @@ angular.module('filestore').controller('ChangePasswordController', ['$window','$
 	$scope.toggleCollapsibleMenu = function() {
 		$scope.isCollapsed = !$scope.isCollapsed;
 	};
-	
+	$scope.logout = function() {
+    	$http.get("api/user/logout")
+        .success(function(response){
+        	$window.location="home";
+        
+        })
+        .error(function(response){
+        	$window.location="home";
+        	
+        });
+    } 
 	
 	
 	

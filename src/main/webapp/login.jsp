@@ -31,7 +31,7 @@
         <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
             <h1 class="text-center login-title">Sign in to continue</h1>
             <div ng-show="success" class="alert alert-dismissible alert-success">
-		  		<strong>Great!</strong> You are successfully logged in 
+		  		<strong>Great!</strong> You are successfully logged in, redirecting please wait... 
 			</div>
             <div ng-show="passwordWrong" class="alert alert-dismissible alert-danger">
 		  		 Login Failed

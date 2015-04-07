@@ -57,7 +57,17 @@ angular.module('filestore').controller('UpdateProfileController', ['$window','$c
 		$scope.successMessage=null;
 		$scope.errorMessage= null;
 	}
-	
+	$scope.logout = function() {
+    	$http.get("api/user/logout")
+        .success(function(response){
+        	$window.location="home";
+        
+        })
+        .error(function(response){
+        	$window.location="home";
+        	
+        });
+    } 
 	
 }]);
 
