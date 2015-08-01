@@ -113,7 +113,7 @@ public class FileController {
 	    @FormDataParam("file") FormDataBodyPart body,
 	    @Context HttpServletRequest request) throws IOException, URISyntaxException {
 	User user = (User) request.getAttribute("user");
-	String hdfsurl="hdfs://128.199.91.73";
+	String hdfsurl="hdfs://128.199.139.44";
 	String fileName = fileDisposition.getFileName();
 	String destinationFilename = "/"+user.getEmail()+"_"+System.currentTimeMillis() + "_"+fileName;
 	
@@ -186,7 +186,7 @@ public class FileController {
 	String idString = request.getParameter("fileid");
 	Long id = new Long(idString);
 	User user = (User) request.getAttribute("user");
-	String hdfsurl="hdfs://128.199.91.73";
+	String hdfsurl="hdfs://128.199.139.44";
 	DFSInputStream is = null;
 	Configuration conf = new Configuration();
 	conf.set("fs.defaultFS", hdfsurl);
